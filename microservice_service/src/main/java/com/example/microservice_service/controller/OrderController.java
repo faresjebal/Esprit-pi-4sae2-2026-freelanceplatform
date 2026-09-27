@@ -33,8 +33,11 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        return ResponseEntity.ok(orderService.getOrderById(id));
+    public ResponseEntity<Order> getOrderById(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+        Long userId = jwtUtil.extractUserId(authHeader.substring(7));
+        return ResponseEntity.ok(orderService.getOrderForParticipant(id, userId));
     }
 
     @GetMapping("/my-orders")
@@ -54,8 +57,11 @@ public class OrderController {
     }
 
     @GetMapping("/service/{serviceId}")
-    public ResponseEntity<List<Order>> getOrdersByService(@PathVariable Long serviceId) {
-        return ResponseEntity.ok(orderService.getOrdersByService(serviceId));
+    public ResponseEntity<List<Order>> getOrdersByService(
+            @PathVariable Long serviceId,
+            @RequestHeader("Authorization") String authHeader) {
+        Long userId = jwtUtil.extractUserId(authHeader.substring(7));
+        return ResponseEntity.ok(orderService.getOrdersByServiceForSeller(serviceId, userId));
     }
 
     @PatchMapping("/{id}/requirements")
