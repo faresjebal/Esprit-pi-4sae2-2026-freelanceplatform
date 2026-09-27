@@ -43,19 +43,27 @@ public class ContractController {
     // Any authenticated user can list contracts
     @GetMapping
     public ResponseEntity<List<ContractDto.Response>> getAll(
-            @RequestParam(required = false) ContractStatus status) {
+            @RequestParam(required = false) ContractStatus status,
+            HttpServletRequest request) {
+        requireAdmin(request);
         return ResponseEntity.ok(status != null
                 ? contractService.getContractsByStatus(status)
                 : contractService.getAllContracts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ContractDto.Response> getById(@PathVariable Long id) {
+    public ResponseEntity<ContractDto.Response> getById(@PathVariable Long id, HttpServletRequest request) {
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Contract not found: " + id));
+        requireParticipant(request, contract);
         return ResponseEntity.ok(contractService.getContractById(id));
     }
 
     @GetMapping("/proposal/{proposalId}")
-    public ResponseEntity<ContractDto.Response> getByProposal(@PathVariable Long proposalId) {
+    public ResponseEntity<ContractDto.Response> getByProposal(@PathVariable Long proposalId, HttpServletRequest request) {
+        Contract contract = contractRepository.findByProposalId(proposalId)
+                .orElseThrow(() -> new EntityNotFoundException("Contract not found for proposal: " + proposalId));
+        requireParticipant(request, contract);
         return ResponseEntity.ok(contractService.getContractByProposalId(proposalId));
     }
 
@@ -125,9 +133,10 @@ public class ContractController {
     //      controls what the browser does when it resolves that URL.
     //
     @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
+    public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id, HttpServletRequest request) {
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Contract not found: " + id));
+        requireParticipant(request, contract);
 
         byte[] pdf = pdfService.generateContractPdf(contract);
 
@@ -161,5 +170,19 @@ public class ContractController {
                         ? "✅ This contract is authentic and was issued by ProLance."
                         : "❌ Verification failed. This document may have been tampered with."
         ));
+    }
+    private void requireAdmin(HttpServletRequest request) {
+        if (!"ADMIN".equals(request.getAttribute("role"))) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private void requireParticipant(HttpServletRequest request, Contract contract) {
+        if ("ADMIN".equals(request.getAttribute("role"))) return;
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null || (!userId.equals(contract.getClientId())
+                && !userId.equals(contract.getFreelancerId()))) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 }
