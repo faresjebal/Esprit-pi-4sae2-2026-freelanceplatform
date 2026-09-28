@@ -14,12 +14,14 @@ import java.util.List;
 public class ServiceAddOnController {
 
     private final ServiceAddOnService addOnService;
+    private final com.example.microservice_service.Security.JwtUtil jwtUtil;
 
     @PostMapping("/service/{serviceId}")
     public ResponseEntity<ServiceAddOn> createAddOn(
             @PathVariable Long serviceId,
-            @RequestBody ServiceAddOn addOn) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(addOnService.createAddOn(serviceId, addOn));
+            @RequestBody ServiceAddOn addOn,
+            @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(addOnService.createAddOn(serviceId, addOn, requesterId(authHeader)));
     }
 
     @GetMapping("/{id}")
@@ -35,13 +37,28 @@ public class ServiceAddOnController {
     @PutMapping("/{id}")
     public ResponseEntity<ServiceAddOn> updateAddOn(
             @PathVariable Long id,
-            @RequestBody ServiceAddOn addOn) {
-        return ResponseEntity.ok(addOnService.updateAddOn(id, addOn));
+            @RequestBody ServiceAddOn addOn,
+            @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(addOnService.updateAddOn(id, addOn, requesterId(authHeader)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAddOn(@PathVariable Long id) {
-        addOnService.deleteAddOn(id);
+    public ResponseEntity<Void> deleteAddOn(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+        addOnService.deleteAddOn(id, requesterId(authHeader));
         return ResponseEntity.noContent().build();
+    }
+    private Long requesterId(String header) {
+        if (header == null || !header.startsWith("Bearer ") || header.length() <= 7) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            Long id = jwtUtil.extractUserId(header.substring(7));
+            if (id == null) throw new IllegalArgumentException("Missing user ID");
+            return id;
+        } catch (RuntimeException ex) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
     }
 }
