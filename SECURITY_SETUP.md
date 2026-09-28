@@ -19,7 +19,7 @@ The committed `k8s/secret.yaml` was removed. Create `mysql-secret` in the `pidev
 ## Remaining work before deployment
 
 - Contract creation is still permitted without user authentication because the proposal service calls it internally; replace that with authenticated service-to-service communication.
-- Review signature, extension, service listing, and other controller routes for object-level authorization. This PR limits contract listing, contract/PDF reads, and order reads, but it is not a complete security audit.
+- Review signature, extension, add-on reads, and other controller routes for object-level authorization. This PR limits contract/PDF and order reads, listing and custom-offer actions, and add-on writes, but it is not a complete security audit.
 - Jenkins currently skips Maven tests and does not enforce a SonarQube quality gate. Fix and exercise the pipeline before deployment.
 - Generated `target/` artifacts and old commits may retain prior configuration values. Coordinate history remediation with the upstream owner after credentials have been revoked.
 - Test the frontend and dependent services against changed access rules. Contract listing is now admin-only; buyers/sellers should use their scoped endpoints.
