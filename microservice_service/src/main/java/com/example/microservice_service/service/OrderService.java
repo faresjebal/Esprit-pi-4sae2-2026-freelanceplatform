@@ -53,6 +53,24 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
     }
 
+    public Order getOrderForParticipant(Long orderId, Long requesterId) {
+        Order order = getOrderById(orderId);
+        if (!order.getBuyerId().equals(requesterId) && !order.getSellerId().equals(requesterId)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Not a participant in this order");
+        }
+        return order;
+    }
+
+    public List<Order> getOrdersByServiceForSeller(Long serviceId, Long requesterId) {
+        FreelancerService service = freelancerServiceService.getServiceById(serviceId);
+        if (!service.getShop().getFreelancerId().equals(requesterId)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Not the seller of this service");
+        }
+        return orderRepository.findByServiceId(serviceId);
+    }
+
     public List<Order> getOrdersByBuyer(Long buyerId) {
         return orderRepository.findByBuyerId(buyerId);
     }

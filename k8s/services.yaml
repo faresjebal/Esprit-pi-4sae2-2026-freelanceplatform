@@ -24,6 +24,16 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: JWT_SECRET
+            - name: USER_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: USER_MAIL_PASSWORD
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: SPRING_DATASOURCE_USERNAME
@@ -89,6 +99,16 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: JWT_SECRET
+            - name: CONTRACT_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: CONTRACT_MAIL_PASSWORD
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/contract_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: SPRING_DATASOURCE_USERNAME
@@ -154,6 +174,21 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: JWT_SECRET
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: GEMINI_API_KEY
+            - name: PROJECT_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: PROJECT_MAIL_PASSWORD
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/project_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: SPRING_DATASOURCE_USERNAME
@@ -219,6 +254,16 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: JWT_SECRET
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: GEMINI_API_KEY
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/proposal_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: SPRING_DATASOURCE_USERNAME
@@ -284,6 +329,11 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: JWT_SECRET
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/service_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: SPRING_DATASOURCE_USERNAME
@@ -349,6 +399,11 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: JWT_SECRET
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/dispute_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: DISPUTE_DB_URL
@@ -481,6 +536,11 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: JWT_SECRET
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/message_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: MESSAGE_DB_URL
@@ -613,6 +673,11 @@ spec:
             - configMapRef:
                 name: common-env
           env:
+            - name: PAYMENT_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: PAYMENT_MAIL_PASSWORD
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/payment_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
             - name: SPRING_DATASOURCE_USERNAME

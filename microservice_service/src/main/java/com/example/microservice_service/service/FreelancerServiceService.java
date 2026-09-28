@@ -27,7 +27,14 @@ public class FreelancerServiceService {
     }
 
     @Transactional
-    public FreelancerService createService(Long shopId, FreelancerService service) {
+    public FreelancerService createService(Long shopId, FreelancerService service, Long requesterId) {
+        Shop shop = shopService.getShopById(shopId);
+        if (shop == null) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Shop not found");
+        }
+        if (!shop.getFreelancerId().equals(requesterId)) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Not your shop");
+        }
         // getReference() creates a managed proxy — Hibernate correctly writes the FK
         Shop shopRef = entityManager.getReference(Shop.class, shopId);
         service.setShop(shopRef);
@@ -62,8 +69,9 @@ public class FreelancerServiceService {
     }
 
     @Transactional
-    public FreelancerService updateService(Long id, FreelancerService updated) {
+    public FreelancerService updateService(Long id, FreelancerService updated, Long requesterId) {
         FreelancerService existing = getServiceById(id);
+        requireOwner(existing, requesterId);
         existing.setTitle(updated.getTitle());
         existing.setDescription(updated.getDescription());
         existing.setCategory(updated.getCategory());
@@ -77,8 +85,9 @@ public class FreelancerServiceService {
     }
 
     @Transactional
-    public FreelancerService submitForReview(Long id) {
+    public FreelancerService submitForReview(Long id, Long requesterId) {
         FreelancerService service = getServiceById(id);
+        requireOwner(service, requesterId);
         if (service.getStatus() != ServiceStatus.DRAFT && service.getStatus() != ServiceStatus.REJECTED) {
             throw new IllegalStateException("Only DRAFT or REJECTED services can be submitted for review.");
         }
@@ -87,7 +96,8 @@ public class FreelancerServiceService {
     }
 
     @Transactional
-    public FreelancerService approveService(Long id) {
+    public FreelancerService approveService(Long id, String requesterRole) {
+        requireAdmin(requesterRole);
         FreelancerService service = getServiceById(id);
         service.setStatus(ServiceStatus.ACTIVE);
         service.setRejectionReason(null);
@@ -95,7 +105,8 @@ public class FreelancerServiceService {
     }
 
     @Transactional
-    public FreelancerService rejectService(Long id, String reason) {
+    public FreelancerService rejectService(Long id, String reason, String requesterRole) {
+        requireAdmin(requesterRole);
         FreelancerService service = getServiceById(id);
         service.setStatus(ServiceStatus.REJECTED);
         service.setRejectionReason(reason);
@@ -103,8 +114,9 @@ public class FreelancerServiceService {
     }
 
     @Transactional
-    public FreelancerService togglePause(Long id) {
+    public FreelancerService togglePause(Long id, Long requesterId) {
         FreelancerService service = getServiceById(id);
+        requireOwner(service, requesterId);
         if (service.getStatus() == ServiceStatus.ACTIVE) {
             service.setStatus(ServiceStatus.PAUSED);
         } else if (service.getStatus() == ServiceStatus.PAUSED) {
@@ -116,14 +128,27 @@ public class FreelancerServiceService {
     }
 
     @Transactional
-    public FreelancerService archiveService(Long id) {
+    public FreelancerService archiveService(Long id, Long requesterId) {
         FreelancerService service = getServiceById(id);
+        requireOwner(service, requesterId);
         service.setStatus(ServiceStatus.ARCHIVED);
         return serviceRepository.save(service);
     }
 
     @Transactional
-    public void deleteService(Long id) {
+    public void deleteService(Long id, Long requesterId) {
+        requireOwner(getServiceById(id), requesterId);
         serviceRepository.deleteById(id);
+    }
+    private void requireOwner(FreelancerService service, Long requesterId) {
+        if (requesterId == null || !service.getShop().getFreelancerId().equals(requesterId)) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Not your service");
+        }
+    }
+
+    private void requireAdmin(String requesterRole) {
+        if (!"ADMIN".equals(requesterRole)) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Admin required");
+        }
     }
 }

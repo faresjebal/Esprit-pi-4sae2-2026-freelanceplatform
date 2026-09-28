@@ -24,7 +24,7 @@
       - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD}
     networks:
       - pidev_4_pidev-network
     depends_on:
@@ -36,7 +36,7 @@
     ports:
       - "9104:9104"
     environment:
-      - DATA_SOURCE_NAME=root:root@(mysql:3306)/
+      - DATA_SOURCE_NAME=root:${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}@(mysql:3306)/
     networks:
       - pidev_4_pidev-network
 
