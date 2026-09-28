@@ -84,12 +84,12 @@ spec:
               cpu: "500m"
           livenessProbe:
             exec:
-              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+              command: ["mysqladmin", "ping", "-h", "localhost"]
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             exec:
-              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+              command: ["mysqladmin", "ping", "-h", "localhost"]
             initialDelaySeconds: 20
             periodSeconds: 5
       volumes:
