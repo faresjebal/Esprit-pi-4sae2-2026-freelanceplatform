@@ -56,23 +56,41 @@ public class FreelancerServiceController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<List<FreelancerService>> getPendingServices() {
+    public ResponseEntity<List<FreelancerService>> getPendingServices(
+            @RequestHeader("Authorization") String authHeader) {
+        requireAdmin(authHeader);
         return ResponseEntity.ok(serviceService.getPendingServices());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FreelancerService> getServiceById(@PathVariable Long id) {
-        return ResponseEntity.ok(serviceService.getServiceById(id));
+    public ResponseEntity<FreelancerService> getServiceById(
+            @PathVariable Long id,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        FreelancerService service = serviceService.getServiceById(id);
+        requireVisible(service, authHeader);
+        return ResponseEntity.ok(service);
     }
 
     @GetMapping("/slug/{slug}")
-    public ResponseEntity<FreelancerService> getServiceBySlug(@PathVariable String slug) {
-        return ResponseEntity.ok(serviceService.getServiceBySlug(slug));
+    public ResponseEntity<FreelancerService> getServiceBySlug(
+            @PathVariable String slug,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        FreelancerService service = serviceService.getServiceBySlug(slug);
+        requireVisible(service, authHeader);
+        return ResponseEntity.ok(service);
     }
 
     @GetMapping("/shop/{shopId}")
-    public ResponseEntity<List<FreelancerService>> getServicesByShop(@PathVariable Long shopId) {
-        return ResponseEntity.ok(serviceService.getServicesByShop(shopId));
+    public ResponseEntity<List<FreelancerService>> getServicesByShop(
+            @PathVariable Long shopId,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        List<FreelancerService> services = serviceService.getServicesByShop(shopId);
+        if (services.isEmpty()) return ResponseEntity.ok(services);
+        boolean owner = authHeader != null && services.get(0).getShop().getFreelancerId().equals(requesterId(authHeader));
+        boolean admin = authHeader != null && "ADMIN".equals(requesterRole(authHeader));
+        return ResponseEntity.ok(owner || admin ? services : services.stream()
+                .filter(s -> s.getStatus() == com.example.microservice_service.entity.enums.ServiceStatus.ACTIVE)
+                .toList());
     }
 
     @GetMapping("/category/{category}")
@@ -155,6 +173,22 @@ public class FreelancerServiceController {
             return role;
         } catch (RuntimeException ex) {
             throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+    }
+    private void requireAdmin(String header) {
+        if (!"ADMIN".equals(requesterRole(header))) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private void requireVisible(FreelancerService service, String header) {
+        if (service.getStatus() == com.example.microservice_service.entity.enums.ServiceStatus.ACTIVE) return;
+        if (header == null) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        Long id = requesterId(header);
+        if (!service.getShop().getFreelancerId().equals(id) && !"ADMIN".equals(requesterRole(header))) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
 }
