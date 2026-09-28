@@ -6,7 +6,7 @@ x-common-env: &common-env
   SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
   JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -XX:ActiveProcessorCount=2 -XX:+UseG1GC"
   SPRING_DATASOURCE_USERNAME: root
-  SPRING_DATASOURCE_PASSWORD: root
+  SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
 
 x-common-depends: &common-depends
   mysql:
@@ -26,7 +26,7 @@ services:
     image: mysql:8.0
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -43,7 +43,7 @@ services:
       --max-connections=200
       --innodb-flush-log-at-trx-commit=2
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$MYSQL_ROOT_PASSWORD\""]
       interval: 10s
       timeout: 5s
       retries: 10
