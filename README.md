@@ -1,27 +1,11 @@
-# Daxa
+# Freelancing platform — Fares Jebali's contributor fork
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.0.
+This is a fork of a team project. The platform combines larger client projects, proposals and contracts with fixed-scope freelancer services such as logo work and templates.
 
-## Development server
+**The contributor code is on [`microservice_faresjebali_v2`](https://github.com/faresjebal/Esprit-pi-4sae2-2026-freelanceplatform/tree/microservice_faresjebali_v2).** This default `template` branch is an early Angular starter and does not represent the current platform. The [draft security and documentation PR](https://github.com/faresjebal/Esprit-pi-4sae2-2026-freelanceplatform/pull/1) proposes fixes against the contributor branch.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+My contribution covered backend functionality for users, contracts, freelancer shops and service listings, plus Jenkins, SonarQube, Prometheus and Grafana configuration. Kubernetes work used a single local Docker Desktop cluster. The wider repository contains teammates' work; I do not claim to have authored every service or screen.
 
-## Code scaffolding
+**Project status:** the fork is for code review and portfolio evidence. The draft fixes need testing and replacement runtime credentials before deployment. Old credentials exist in Git history and must be rotated by their owners. Do not use this fork with real user data.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+See the [source branch](https://github.com/faresjebal/Esprit-pi-4sae2-2026-freelanceplatform/tree/microservice_faresjebali_v2) for the current team code and the draft PR for my proposed improvements.
