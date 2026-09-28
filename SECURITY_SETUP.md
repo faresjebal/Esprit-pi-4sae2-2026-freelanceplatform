@@ -12,9 +12,9 @@ Set these environment variables before starting the corresponding services:
 - `MYSQL_ROOT_PASSWORD`: required for `docker-compose.yml` and `docker-compose.monitoring.yml`.
 - `GRAFANA_ADMIN_PASSWORD`: required for `docker-compose.monitoring.yml`.
 
-Pass the needed mail/JWT/Gemini environment variables into Docker Compose and Kubernetes service deployments before starting the stack. The current deployment manifests do **not** inject all of them; a deployment based only on the manifests in this PR may fail to start.
+Docker Compose now passes these variables to the services that need them. The Kubernetes service manifests expect an uncommitted `app-credentials` Secret in namespace `pidev` with keys `JWT_SECRET`, `GEMINI_API_KEY`, `PROJECT_MAIL_PASSWORD`, `CONTRACT_MAIL_PASSWORD`, `USER_MAIL_PASSWORD`, and `PAYMENT_MAIL_PASSWORD`. Create it through a secret manager or a local, uncommitted file before applying the service manifests. Keep credentials out of command history and CI logs.
 
-The committed `k8s/secret.yaml` was removed. Create `mysql-secret` in the `pidev` namespace from a secret manager or a local, uncommitted secret file before applying the other manifests. It needs `username` and `password` keys; the MySQL root password and service data source password must agree. Do not commit the replacement secret.
+The committed `k8s/secret.yaml` was removed. Create `mysql-secret` in the `pidev` namespace from a secret manager or a local, uncommitted secret file before applying the other manifests. It needs `username` and `password` keys; the MySQL root password and service data source password must agree. The `app-credentials` Secret described above is separate. Do not commit the replacement secret.
 
 ## Remaining work before deployment
 
