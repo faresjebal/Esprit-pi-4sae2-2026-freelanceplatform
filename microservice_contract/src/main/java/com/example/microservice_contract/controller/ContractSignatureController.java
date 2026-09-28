@@ -11,8 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -37,18 +35,6 @@ public class ContractSignatureController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(signatureService.initiateSignature(contractId, request));
-    }
-
-    // ── Debug ──────────────────────────────────────────────────────────────────
-
-    @GetMapping("/debug")
-    public ResponseEntity<Map<String, Object>> debug(HttpServletRequest request) {
-        return ResponseEntity.ok(Map.of(
-                "email",      String.valueOf(request.getAttribute("email")),
-                "role",       String.valueOf(request.getAttribute("role")),
-                "userId",     String.valueOf(request.getAttribute("userId")),
-                "authHeader", String.valueOf(request.getHeader("Authorization"))
-        ));
     }
 
     // ── Auth status ────────────────────────────────────────────────────────────
@@ -178,18 +164,6 @@ public class ContractSignatureController {
             @PathVariable Long contractId,
             @Valid @RequestBody ContractSignatureDto.SignRequest request,
             HttpServletRequest httpRequest) {
-
-        // ── Debug log ──────────────────────────────────────────────────────────
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("=== SIGN DEBUG ===");
-        System.out.println("Authentication:   " + auth);
-        System.out.println("Is authenticated: " + (auth != null && auth.isAuthenticated()));
-        System.out.println("Principal:        " + (auth != null ? auth.getPrincipal() : "null"));
-        System.out.println("Authorities:      " + (auth != null ? auth.getAuthorities() : "null"));
-        System.out.println("Attr email:       " + httpRequest.getAttribute("email"));
-        System.out.println("Attr role:        " + httpRequest.getAttribute("role"));
-        System.out.println("Attr userId:      " + httpRequest.getAttribute("userId"));
-        System.out.println("=== END DEBUG ===");
 
         String userEmail = (String) httpRequest.getAttribute("email");
         String userRole  = (String) httpRequest.getAttribute("role");
